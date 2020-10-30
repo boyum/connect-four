@@ -1,4 +1,5 @@
 import Column from '../../models/Column';
+import Disc from '../../models/Disc';
 import UserEnum from '../../models/UserEnum';
 
 export function initColumns(numberOfColumns: number): Column[] {
@@ -55,21 +56,140 @@ export function rowHasWinningPosition(rowIndex: number, columns: Column[]): bool
   return false;
 }
 
+function isDiagonalWin(columns: Column[], maxNumberOfRows: number) {
+  let x = null;
+  let y = null;
+  let xtemp = null;
+  let ytemp = null;
+  let currentValue: Disc = null;
+  let previousValue: Disc = undefined;
+  let tally = 0;
 
+  // Test for down-right diagonals across the top.
+  for (x = 0; x < columns.length; x++) {
+    xtemp = x;
+    ytemp = 0;
 
-export function isWinningPosition(columns: Column[]): boolean {
+    while (xtemp < columns.length && ytemp <= maxNumberOfRows) {
+      currentValue = columns[xtemp].discs[ytemp];
+      if (currentValue !== undefined && previousValue !== undefined && currentValue.user === previousValue.user) {
+        tally += 1;
+      } else {
+        // Reset the tally if you find a gap.
+        tally = 0;
+      }
+      if (tally === 3) {
+        return true;
+      }
+      previousValue = currentValue;
+
+      // Shift down-right one diagonal index.
+      xtemp++;
+      ytemp++;
+    }
+    // Reset the tally and previous value when changing diagonals.
+    tally = 0;
+    previousValue = undefined;
+  }
+
+  // Test for down-left diagonals across the top.
+  for (x = 0; x < columns.length; x++) {
+    xtemp = x;
+    ytemp = 0;
+
+    while (0 <= xtemp && ytemp <= maxNumberOfRows) {
+      currentValue = columns[xtemp].discs[ytemp];
+      if (currentValue !== undefined && previousValue !== undefined && currentValue.user === previousValue.user) {
+        tally += 1;
+      } else {
+        // Reset the tally if you find a gap.
+        tally = 0;
+      }
+      if (tally === 3) {
+        return true;
+      }
+      previousValue = currentValue;
+
+      // Shift down-left one diagonal index.
+      xtemp--;
+      ytemp++;
+    }
+    // Reset the tally and previous value when changing diagonals.
+    tally = 0;
+    previousValue = undefined;
+  }
+
+  // Test for down-right diagonals down the left side.
+  for (y = 0; y <= maxNumberOfRows; y++) {
+    xtemp = 0;
+    ytemp = y;
+
+    while (xtemp < columns.length && ytemp <= maxNumberOfRows) {
+      currentValue = columns[xtemp].discs[ytemp];
+      if (currentValue !== undefined && previousValue !== undefined && currentValue.user === previousValue.user) {
+        tally += 1;
+      } else {
+        // Reset the tally if you find a gap.
+        tally = 0;
+      }
+      if (tally === 3) {
+        return true;
+      }
+      previousValue = currentValue;
+
+      // Shift down-right one diagonal index.
+      xtemp++;
+      ytemp++;
+    }
+    // Reset the tally and previous value when changing diagonals.
+    tally = 0;
+    previousValue = undefined;
+  }
+
+  // Test for down-left diagonals down the right side.
+  for (y = 0; y <= maxNumberOfRows; y++) {
+    xtemp = columns.length - 1;
+    ytemp = y;
+
+    while (0 <= xtemp && ytemp <= maxNumberOfRows) {
+      currentValue = columns[xtemp].discs[ytemp];
+      if (currentValue !== undefined && previousValue !== undefined && currentValue.user === previousValue.user) {
+        tally += 1;
+      } else {
+        // Reset the tally if you find a gap.
+        tally = 0;
+      }
+      if (tally === 3) {
+        return true;
+      }
+      previousValue = currentValue;
+
+      // Shift down-left one diagonal index.
+      xtemp--;
+      ytemp++;
+    }
+    // Reset the tally and previous value when changing diagonals.
+    tally = 0;
+    previousValue = undefined;
+  }
+
+  // No diagonal wins found. Return false.
+  return false;
+}
+
+export function isWinningPosition(columns: Column[], maxNumberOfRows: number): boolean {
   for (const column of columns) {
     if (columnHasWinningPosition(column)) {
       return true;
     }
   }
 
-  for (let i = 0; i < columns.length; i++) {
+  for (let i = 0; i < maxNumberOfRows; i++) {
     if (rowHasWinningPosition(i, columns)) {
       return true;
     }
   }
 
-  return false;
+  return isDiagonalWin(columns, maxNumberOfRows);
 }
 

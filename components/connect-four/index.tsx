@@ -7,9 +7,9 @@ import Board from '../board';
 import styles from './connect-four.module.scss';
 
 interface ComponentProps {
-  maxColumnHeight: number;
-  numberOfColumns: number;
-  numberOfPlayers: number;
+  maxColumnHeight?: number;
+  numberOfColumns?: number;
+  numberOfPlayers?: number;
 }
 
 export default function ConnectFour({ numberOfPlayers = 2, numberOfColumns = 8, maxColumnHeight = 8 }: ComponentProps) {
@@ -43,7 +43,7 @@ export default function ConnectFour({ numberOfPlayers = 2, numberOfColumns = 8, 
   useEffect(() => {
     const gameHasStarted = columns.flatMap(column => column.discs).length > 0;
     if (gameHasStarted) {
-      if (isWinningPosition(columns)) {
+      if (isWinningPosition(columns, maxColumnHeight)) {
         console.log('is winning position')
         setWinner(activeUser);
       } else {
