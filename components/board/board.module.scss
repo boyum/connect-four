@@ -1,0 +1,12 @@
+.board {
+  // background-color: #6C9A8B;
+  display: flex;
+  gap: 0.5rem;
+  padding: 2rem 3rem;
+  width: 100%;
+
+  >* {
+    flex-grow: 1;
+    flex-shrink: 0;
+  }
+}

@@ -1,0 +1,9 @@
+.disc {
+  background-color: var(--disc-color);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 1px 1px rgba(0, 0, 0, 0.3);
+  height: 3rem;
+  margin-top: 1rem;
+  width: 3rem;
+}

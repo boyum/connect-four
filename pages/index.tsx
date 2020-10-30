@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import ConnectFour from '../components/connect-four'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
@@ -10,7 +11,7 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        
+        <ConnectFour />
       </main>
 
       <footer className={styles.footer}>
