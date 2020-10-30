@@ -49,7 +49,6 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
     const gameHasStarted = columns.flatMap(column => column.discs).length > 0;
     if (gameHasStarted) {
       if (isWinningPosition(columns, maxColumnHeight)) {
-        console.log('is winning position')
         setWinner(activeUser);
       } else {
         setActiveUser(activeUser === UserEnum.Player1 ? UserEnum.Player2 : UserEnum.Player1);
