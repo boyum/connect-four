@@ -9,13 +9,13 @@ import styles from './connect-four.module.scss';
 interface ComponentProps {
   maxColumnHeight?: number;
   numberOfColumns?: number;
-  numberOfPlayers?: number;
 }
 
-export default function ConnectFour({ numberOfPlayers = 2, numberOfColumns = 8, maxColumnHeight = 8 }: ComponentProps) {
+export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }: ComponentProps) {
   const [columns, dispatch] = useReducer(connectFourReducer, initColumns(numberOfColumns));
   const [activeUser, setActiveUser] = useState(UserEnum.Player1);
   const [winner, setWinner] = useState<UserEnum>(null);
+  const [mode, setMode] = useState(1);
 
   const onColumnClick = (columnIndex: number) => {
     const columnCanFitMoreDiscs = columns[columnIndex].discs.length < maxColumnHeight;
@@ -38,6 +38,11 @@ export default function ConnectFour({ numberOfPlayers = 2, numberOfColumns = 8, 
     setWinner(null);
     setActiveUser(UserEnum.Player1);
     dispatch({ type: ActionEnum.RESET, payload: { numberOfColumns } });
+  }
+
+  const toggleMode = () => {
+    setMode(3 - mode);
+    reset();
   }
 
   useEffect(() => {
@@ -65,6 +70,13 @@ export default function ConnectFour({ numberOfPlayers = 2, numberOfColumns = 8, 
 
   return (
     <div className={styles.connectFour}>
+      <div className={styles.buttons}>
+        <button type="button" className={styles.modeToggle} onClick={toggleMode} data-mode={mode}>
+          <span className={styles.onePlayer}>One player</span>
+          <span className={styles.twoPlayers}>Two players</span>
+        </button>
+        <button type="button" className={styles.resetButton} onClick={reset}>Reset</button>
+      </div>
       <Board columns={columns} onColumnClick={onColumnClick} />
     </div>
   )

@@ -1,4 +1,60 @@
 .connectFour {
   --color-1: #6C9A8B;
   --color-2: #E8998D;
+  --background-color: #EED2CC;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.modeToggle,
+.resetButton {
+  background-color: transparent;
+  border: 4px solid var(--background-color);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.resetButton {
+  padding: 0.25rem 1.5rem;
+}
+
+.modeToggle {
+  display: flex;
+  padding: 0;
+}
+
+.onePlayer,
+.twoPlayers {
+  padding: 0.25rem 1.5rem;
+}
+
+.onePlayer {
+  padding-right: 0.5rem;
+
+  .modeToggle[data-mode="1"] & {
+    background-color: var(--background-color);
+    opacity: 1;
+  }
+
+  .modeToggle[data-mode="2"] & {
+    opacity: 0.5;
+  }
+}
+
+.twoPlayers {
+  padding-left: 0.5rem;
+  
+  .modeToggle[data-mode="1"] & {
+    opacity: 0.5;
+  }
+
+  .modeToggle[data-mode="2"] & {
+    background-color: var(--background-color);
+    opacity: 1;
+  }
 }
