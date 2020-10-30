@@ -15,7 +15,7 @@ interface ComponentProps {
 export default function ConnectFour({ numberOfPlayers = 2, numberOfColumns = 8, maxColumnHeight = 8 }: ComponentProps) {
   const [columns, dispatch] = useReducer(connectFourReducer, initColumns(numberOfColumns));
   const [activeUser, setActiveUser] = useState(UserEnum.Player1);
-  const [winner, setWinner] = useState<UserEnum>(undefined);
+  const [winner, setWinner] = useState<UserEnum>(null);
 
   const onColumnClick = (columnIndex: number) => {
     const columnCanFitMoreDiscs = columns[columnIndex].discs.length < maxColumnHeight;
@@ -30,24 +30,35 @@ export default function ConnectFour({ numberOfPlayers = 2, numberOfColumns = 8, 
         disc: {
           user: activeUser,
         } as DiscModel,
-        maxColumnHeight,
       }
     });
   };
 
+  const reset = () => {
+    setWinner(null);
+    setActiveUser(UserEnum.Player1);
+    dispatch({ type: ActionEnum.RESET, payload: { numberOfColumns } });
+  }
+
   useEffect(() => {
-    if (isWinningPosition(columns)) {
-      console.log('is winning position')
-      setWinner(activeUser);
-    } else {
-      setActiveUser(activeUser === UserEnum.Player1 ? UserEnum.Player2 : UserEnum.Player1);
+    const gameHasStarted = columns.flatMap(column => column.discs).length > 0;
+    if (gameHasStarted) {
+      if (isWinningPosition(columns)) {
+        console.log('is winning position')
+        setWinner(activeUser);
+      } else {
+        setActiveUser(activeUser === UserEnum.Player1 ? UserEnum.Player2 : UserEnum.Player1);
+      }
     }
 
   }, [columns])
 
   useEffect(() => {
-    if (winner) {
-      alert(`Player ${winner + 1} won`);
+    const hasWinner = winner !== null;
+    if (hasWinner) {
+      alert(`${(winner as UserEnum) === UserEnum.Player1 ? 'Green' : 'Pink'} player won`);
+
+      reset();
     }
 
   }, [winner]);
