@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -16,16 +17,24 @@ type Column struct {
 	discs []Disc
 }
 
-func getJson(r *http.Request, target interface{}) error {
+func parseColumns(r *http.Request, columns []Column) error {
 	defer r.Body.Close()
 
-	return json.NewDecoder(r.Body).Decode(target)
+	body, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return json.Unmarshal(body, &columns)
 }
 
 // Handler Exported http handler
 func Handler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Got request")
+
 	columns := []Column{}
-	err := getJson(r, columns)
+	err := parseColumns(r, columns)
 
 	if err != nil {
 		log.Fatal(err)
