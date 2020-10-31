@@ -1,20 +1,20 @@
-package handler
+package connectfour
 
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
+	"time"
 )
 
 type Disc struct {
-	user uint
+	User uint `json:"user"`
 }
 
 type Column struct {
-	discs []Disc
+	Discs []Disc `json:"discs"`
 }
 
 // Handler Exported http handler
@@ -28,29 +28,28 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	log.Printf("Columns: %#v", columns)
-	log.Printf("%d", len(columns))
+	log.Printf("Current board:\n%s", formatColumns(columns))
+
 	index := findNextMove(&columns, 1)
 
 	fmt.Fprintf(w, "{\"index\": %d}", index)
 }
 
 func parseColumns(r *http.Request, columns *[]Column) error {
-	defer r.Body.Close()
-
-	body, err := ioutil.ReadAll(r.Body)
-
-	log.Printf("Body: %s", string(body))
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return json.Unmarshal(body, &columns)
+	return json.NewDecoder(r.Body).Decode(&columns)
 }
 
 func randomIndex(columns *[]Column) uint {
-	return uint(rand.Intn(len(*columns)))
+	rand.Seed(time.Now().UnixNano())
+	randomIndex := uint(rand.Intn(len(*columns)))
+
+	for ; len((*columns)[randomIndex].Discs) >= 8; randomIndex = uint(rand.Intn(len(*columns))) {
+
+	}
+
+	log.Printf("Returning random index %d. Column length: %d", randomIndex, len(*columns))
+
+	return randomIndex
 }
 
 func findNextMove(columns *[]Column, level uint) uint {
@@ -68,12 +67,16 @@ func findNextMove(columns *[]Column, level uint) uint {
 }
 
 func tryMoves(columns []Column) uint {
-	for i := 0; i < len(columns); i++ {
+	tempColumns := make([]Column, len(columns))
 
-		if tryMove(columns, i) {
-			log.Printf("Found winning move: %d", i)
+	for index := range columns {
+		copy(tempColumns, columns)
+		log.Printf("Temp columns: %v", tempColumns)
 
-			return uint(i)
+		if tryMove(tempColumns, index) {
+			log.Printf("Found winning move: %d", index)
+
+			return uint(index)
 		}
 	}
 
@@ -81,15 +84,12 @@ func tryMoves(columns []Column) uint {
 }
 
 func tryMove(columns []Column, index int) bool {
-	column := (columns)[index]
-
-	columnCanFitMoreDiscs := len(column.discs) < 8
-
+	columnCanFitMoreDiscs := len(columns[index].Discs) < 8
 	if columnCanFitMoreDiscs {
 		var disc Disc
-		disc.user = 1
+		disc.User = 1
 
-		column.discs = append(column.discs, disc)
+		columns[index].Discs = append(columns[index].Discs, disc)
 
 		return hasWinningPosition(&columns)
 	}
@@ -98,25 +98,36 @@ func tryMove(columns []Column, index int) bool {
 }
 
 func hasWinningPosition(columns *[]Column) bool {
-	for _, column := range *columns {
-		return hasVerticalWin(&column)
+	log.Printf("Checking board\n%s", formatColumns(*columns))
+
+	for index, column := range *columns {
+		if columnHasWinningPosition(&column) {
+			log.Printf("Column %d has winning position", index)
+			return true
+		}
+	}
+
+	for i := 0; i < 8; i++ {
+		if rowHasWinningPosition(columns, i) {
+			return true
+		}
 	}
 
 	return false
 }
 
-func hasVerticalWin(column *Column) bool {
+func columnHasWinningPosition(column *Column) bool {
 	var discsInARow uint = 1
 	var previousUser uint = 1000000
 
-	for _, disc := range column.discs {
-		if previousUser == disc.user {
+	for _, disc := range column.Discs {
+		if previousUser == disc.User {
 			discsInARow++
 		} else {
 			discsInARow = 1
 		}
 
-		previousUser = disc.user
+		previousUser = disc.User
 
 		isWinningPosition := discsInARow > 3
 		if isWinningPosition {
@@ -125,4 +136,62 @@ func hasVerticalWin(column *Column) bool {
 	}
 
 	return false
+}
+
+func rowHasWinningPosition(columns *[]Column, rowIndex int) bool {
+	var discsInARow uint = 1
+	var previousUser uint = 1000000
+
+	for _, column := range *columns {
+		if len(column.Discs) > rowIndex {
+			disc := column.Discs[rowIndex]
+
+			if previousUser == disc.User {
+				discsInARow++
+			} else {
+				discsInARow = 1
+			}
+
+			previousUser = disc.User
+		} else {
+			previousUser = 1000000
+		}
+
+		isWinningPosition := discsInARow > 3
+		if isWinningPosition {
+			log.Printf("Row %d has winning position", rowIndex)
+			return true
+		}
+	}
+
+	return false
+}
+
+func formatColumns(columns []Column) string {
+
+	rows := make([][]string, 8)
+	rowsFormatted := ""
+
+	for i := range rows {
+		rows[i] = make([]string, 8)
+		row := rows[i]
+
+		for j := range row {
+			column := columns[j]
+			if len(column.Discs) > i {
+				row[j] = fmt.Sprintf("%d", column.Discs[i])
+			} else {
+				row[j] = " - "
+			}
+		}
+	}
+
+	for i := 7; i >= 0; i-- {
+		rowsFormatted += fmt.Sprintf("%v\n", rows[i])
+	}
+
+	return fmt.Sprintf(`
+---------------------------------
+%s---------------------------------
+	`, rowsFormatted)
 }
