@@ -25,12 +25,15 @@ func getJson(r *http.Request, target interface{}) error {
 // Handler Exported http handler
 func Handler(w http.ResponseWriter, r *http.Request) {
 	columns := []Column{}
-	getJson(r, columns)
+	err := getJson(r, columns)
 
-	log.Printf("Columns: %#v", getJson(r, columns))
-	log.Printf("Columns 2: %#v", columns)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("Columns: %#v", columns)
 	log.Printf("%d", len(columns))
-	index := rand.Intn(len(getJson(r, columns)))
+	index := rand.Intn(len(columns))
 
 	fmt.Fprintf(w, "{\"index\": %d}", index)
 }
