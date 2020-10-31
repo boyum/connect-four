@@ -2,10 +2,13 @@ package handler
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 )
 
 // Handler Exported http handler
 func Handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "{\"index\": 0}")
+	index := rand.Intn(8)
+
+	fmt.Fprintf(w, "{\"index\": %d}", index)
 }
