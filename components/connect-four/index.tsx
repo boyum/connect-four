@@ -23,6 +23,12 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
     if (!columnCanFitMoreDiscs) {
       return;
     }
+    
+    const onePlayerMode = mode === 1;
+    const computerIsActiveUser = activeUser === UserEnum.Player2;
+    if (onePlayerMode && computerIsActiveUser) {
+      return;
+    }
 
     dispatch({
       type: ActionEnum.ADD_DISC, payload: {
@@ -54,7 +60,8 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
         setActiveUser(activeUser === UserEnum.Player1 ? UserEnum.Player2 : UserEnum.Player1);
 
         const onePlayerMode = mode === 1;
-        if (onePlayerMode) {
+        const computerIsActiveUser = activeUser === UserEnum.Player2;
+        if (onePlayerMode && computerIsActiveUser) {
           const fetchNextMove = async () => {
             try {
               const nextMove = await fetch('/api/next-move', {
