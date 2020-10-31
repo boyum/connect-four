@@ -17,7 +17,7 @@ type Column struct {
 	discs []Disc
 }
 
-func parseColumns(r *http.Request, columns []Column) error {
+func parseColumns(r *http.Request, columns *[]Column) error {
 	defer r.Body.Close()
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -36,7 +36,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Got request")
 
 	columns := []Column{}
-	err := parseColumns(r, columns)
+	err := parseColumns(r, &columns)
 
 	if err != nil {
 		log.Fatal(err)
