@@ -52,6 +52,38 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
         setWinner(activeUser);
       } else {
         setActiveUser(activeUser === UserEnum.Player1 ? UserEnum.Player2 : UserEnum.Player1);
+
+        const onePlayerMode = mode === 1;
+        if (onePlayerMode) {
+          const fetchNextMove = async () => {
+            try {
+              const nextMove = await fetch('/api/next-move', {
+                body: JSON.stringify(columns),
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              });
+
+              const nextColumnIndex = (await nextMove.json()).index;
+
+              dispatch({
+                type: ActionEnum.ADD_DISC, payload: {
+                  index: nextColumnIndex,
+                  disc: {
+                    user: activeUser,
+                  } as DiscModel,
+                }
+              });
+            }
+
+            catch (error) {
+              console.error(error);
+            }
+          }
+
+          fetchNextMove();
+        }
       }
     }
 
