@@ -33,15 +33,6 @@ func parseColumns(r *http.Request, columns []Column) error {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Got request")
 
-	columns := []Column{}
-	err := parseColumns(r, columns)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Printf("Columns: %#v", columns)
-	log.Printf("%d", len(columns))
 	index := rand.Intn(8)
 
 	fmt.Fprintf(w, "{\"index\": %d}", index)
