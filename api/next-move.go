@@ -22,6 +22,8 @@ func parseColumns(r *http.Request, columns []Column) error {
 
 	body, err := ioutil.ReadAll(r.Body)
 
+	log.Printf("Body: %s", string(body))
+
 	if err != nil {
 		log.Fatal(err)
 	}
