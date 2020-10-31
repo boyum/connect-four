@@ -5,14 +5,15 @@ import styles from './board.module.scss';
 
 interface ComponentProps {
   columns: ColumnModel[];
-  onColumnClick: (columnIndex: number) => void
+  onColumnClick: (columnIndex: number) => void;
+  maxColumnHeight: number;
 }
 
-export default function Board({ columns, onColumnClick }: ComponentProps) {
+export default function Board({ columns, onColumnClick, maxColumnHeight }: ComponentProps) {
 
   return (
     <div className={styles.board}>
-      {columns?.map((column, index) => <Column key={`column-${index}`} column={column} onClick={onColumnClick.bind(null, index)} />)}
+      {columns?.map((column, index) => <Column key={`column-${index}`} column={column} maxColumnHeight={maxColumnHeight} onClick={onColumnClick.bind(null, index)} />)}
     </div>
   );
 }

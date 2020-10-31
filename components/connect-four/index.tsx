@@ -117,7 +117,7 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
         </button>
         <button type="button" className={styles.resetButton} onClick={reset}>Reset</button>
       </div>
-      <Board columns={columns} onColumnClick={onColumnClick} />
+      <Board columns={columns} maxColumnHeight={maxColumnHeight} onColumnClick={onColumnClick} />
     </div>
   )
 }
