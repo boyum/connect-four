@@ -44,7 +44,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Columns: %#v", columns)
 	log.Printf("%d", len(columns))
-	index := rand.Intn(8)
+	index := rand.Intn(len(columns))
 
 	fmt.Fprintf(w, "{\"index\": %d}", index)
 }
