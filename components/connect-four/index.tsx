@@ -23,7 +23,7 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
     if (!columnCanFitMoreDiscs) {
       return;
     }
-    
+
     const onePlayerMode = mode === 1;
     const computerIsActiveUser = activeUser === UserEnum.Player2;
     if (onePlayerMode && computerIsActiveUser) {
@@ -58,43 +58,45 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
         setWinner(activeUser);
       } else {
         setActiveUser(activeUser === UserEnum.Player1 ? UserEnum.Player2 : UserEnum.Player1);
-
-        const onePlayerMode = mode === 1;
-        const computerIsActiveUser = activeUser === UserEnum.Player2;
-        if (onePlayerMode && computerIsActiveUser) {
-          const fetchNextMove = async () => {
-            try {
-              const nextMove = await fetch('/api/next-move', {
-                body: JSON.stringify(columns),
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              });
-
-              const nextColumnIndex = (await nextMove.json()).index;
-
-              dispatch({
-                type: ActionEnum.ADD_DISC, payload: {
-                  index: nextColumnIndex,
-                  disc: {
-                    user: activeUser,
-                  } as DiscModel,
-                }
-              });
-            }
-
-            catch (error) {
-              console.error(error);
-            }
-          }
-
-          fetchNextMove();
-        }
       }
     }
 
-  }, [columns])
+  }, [columns]);
+
+  useEffect(() => {
+    const onePlayerMode = mode === 1;
+    const computerIsActiveUser = activeUser === UserEnum.Player2;
+    if (onePlayerMode && computerIsActiveUser) {
+      const fetchNextMove = async () => {
+        try {
+          const nextMove = await fetch('/api/next-move', {
+            body: JSON.stringify(columns),
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          const nextColumnIndex = (await nextMove.json()).index;
+
+          dispatch({
+            type: ActionEnum.ADD_DISC, payload: {
+              index: nextColumnIndex,
+              disc: {
+                user: activeUser,
+              } as DiscModel,
+            }
+          });
+        }
+
+        catch (error) {
+          console.error(error);
+        }
+      }
+
+      fetchNextMove();
+    }
+  }, [activeUser]);
 
   useEffect(() => {
     const hasWinner = winner !== null;
