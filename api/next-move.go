@@ -70,7 +70,7 @@ func findNextMove(columns *[]Column, level uint) uint {
 func tryMoves(columns []Column) uint {
 	for i := 0; i < len(columns); i++ {
 
-		if tryMove(&columns, i) {
+		if tryMove(columns, i) {
 			return uint(i)
 		}
 	}
@@ -78,8 +78,8 @@ func tryMoves(columns []Column) uint {
 	return randomIndex(&columns)
 }
 
-func tryMove(columns *[]Column, index int) bool {
-	column := (*columns)[index]
+func tryMove(columns []Column, index int) bool {
+	column := (columns)[index]
 
 	columnCanFitMoreDiscs := len(column.discs) < 8
 
@@ -89,7 +89,7 @@ func tryMove(columns *[]Column, index int) bool {
 
 		column.discs = append(column.discs, disc)
 
-		return hasWinningPosition(columns)
+		return hasWinningPosition(&columns)
 	}
 
 	return false
