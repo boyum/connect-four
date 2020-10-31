@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 )
@@ -26,7 +27,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	columns := []Column{}
 	getJson(r, columns)
 
-	index := rand.Intn(len(columns))
+	log.Printf("Columns: %#v", getJson(r, columns))
+	log.Printf("Columns 2: %#v", columns)
+	log.Printf("%d", len(columns))
+	index := rand.Intn(len(getJson(r, columns)))
 
 	fmt.Fprintf(w, "{\"index\": %d}", index)
 }
