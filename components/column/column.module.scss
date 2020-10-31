@@ -5,7 +5,11 @@
   border-radius: 8px;
   display: flex;
   flex-direction: column-reverse;
-  height: 33rem;
-  padding: 0.5rem;
-  width: 4rem;
+  height: 100%;
+  padding: 0.5rem 0;
+  width: calc(var(--column-width, 12.5%) - 0.5rem);
+
+  &[disabled] {
+    background-color: #cad7d3;
+  }
 }
