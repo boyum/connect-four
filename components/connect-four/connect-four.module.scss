@@ -7,8 +7,12 @@
 .buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
   justify-content: center;
+  margin: -0.5rem;
+
+  >* {
+    margin: 0.5rem;
+  }
 }
 
 .modeToggle,
@@ -48,7 +52,7 @@
 
 .twoPlayers {
   padding-left: 0.5rem;
-  
+
   .modeToggle[data-mode="1"] & {
     opacity: 0.5;
   }
