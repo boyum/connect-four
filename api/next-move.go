@@ -30,7 +30,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Columns: %#v", columns)
 	log.Printf("%d", len(columns))
-	index := findNextMove(&columns, 0)
+	index := findNextMove(&columns, 1)
 
 	fmt.Fprintf(w, "{\"index\": %d}", index)
 }
@@ -61,16 +61,18 @@ func findNextMove(columns *[]Column, level uint) uint {
 	}
 
 	if level == 1 {
-
+		index = tryMoves(*columns)
 	}
 
-	return uint(index)
+	return index
 }
 
 func tryMoves(columns []Column) uint {
 	for i := 0; i < len(columns); i++ {
 
 		if tryMove(columns, i) {
+			log.Printf("Found winning move: %d", i)
+
 			return uint(i)
 		}
 	}
