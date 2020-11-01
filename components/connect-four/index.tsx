@@ -5,6 +5,8 @@ import connectFourReducer, { ActionEnum } from '../../reducers/connect-four.redu
 import { initColumns, isWinningPosition } from '../../utils/connect-four/connect-four.utils';
 import Board from '../board';
 import styles from './connect-four.module.scss';
+import ApiRequest from '../../models/ApiRequest';
+import ApiResponse from '../../models/ApiResponse';
 
 interface ComponentProps {
   maxColumnHeight?: number;
@@ -16,6 +18,7 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
   const [activeUser, setActiveUser] = useState(UserEnum.Player1);
   const [winner, setWinner] = useState<UserEnum>(null);
   const [mode, setMode] = useState(1);
+  const [difficulty, setDifficulty] = useState(2);
 
   const onColumnClick = (columnIndex: number) => {
     const columnCanFitMoreDiscs = columns[columnIndex].discs.length < maxColumnHeight;
@@ -69,19 +72,26 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
     if (onePlayerMode && computerIsActiveUser) {
       const fetchNextMove = async () => {
         try {
+          const body: ApiRequest = {
+            columns,
+            difficulty,
+          };
+          
           const nextMove = await fetch('/api/next-move', {
-            body: JSON.stringify(columns),
+            body: JSON.stringify(body),
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
           });
 
-          const nextColumnIndex = (await nextMove.json()).index;
+          const response: ApiResponse = (await nextMove.json());
 
+          console.info(`Process time: ${(response.processDuration / 10e8).toFixed(2)} seconds`);
+          
           dispatch({
             type: ActionEnum.ADD_DISC, payload: {
-              index: nextColumnIndex,
+              index: response.move.move,
               disc: {
                 user: activeUser,
               } as DiscModel,

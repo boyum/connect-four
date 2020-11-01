@@ -22,26 +22,51 @@ type MiniMax struct {
 	Value float64 `json:"value"`
 }
 
+type Request struct {
+	Columns    []Column `json:"columns"`
+	Difficulty uint     `json:"difficulty"`
+}
+
+type Response struct {
+	Move            MiniMax       `json:"move"`
+	ProcessDuration time.Duration `json:"processDuration"`
+}
+
 // Handler Exported http handler
 func Handler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Got request")
 
-	columns := []Column{}
-	err := parseColumns(r, &columns)
+	startTime := time.Now()
+
+	request := Request{}
+	err := parseRequest(r, &request)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Printf("Current board:\n%s", formatColumns(&columns))
+	log.Printf("Current board:\n%s", formatColumns(&request.Columns))
 
-	index := findNextMove(&columns, 1)
+	move := findNextMove(&request.Columns, request.Difficulty)
 
-	fmt.Fprintf(w, "{\"index\": %d}", index)
+	response := Response{
+		Move:            move,
+		ProcessDuration: time.Since(startTime),
+	}
+	responseJSON, err := json.Marshal(response)
+
+	if err != nil {
+		log.Printf("Error: %v", err)
+		log.Fatal(err)
+	}
+
+	log.Printf("responseJSON: %s", string(responseJSON))
+
+	fmt.Fprintf(w, string(responseJSON))
 }
 
-func parseColumns(r *http.Request, columns *[]Column) error {
-	return json.NewDecoder(r.Body).Decode(&columns)
+func parseRequest(r *http.Request, request *Request) error {
+	return json.NewDecoder(r.Body).Decode(&request)
 }
 
 func randomIndex(columns *[]Column) uint {
@@ -57,25 +82,22 @@ func randomIndex(columns *[]Column) uint {
 	return randomIndex
 }
 
-func findNextMove(columns *[]Column, level uint) uint {
-	var index uint = 0
-
-	if level == 0 {
-		index = randomIndex(columns)
+func findNextMove(columns *[]Column, level uint) MiniMax {
+	move := MiniMax{
+		Move:  randomIndex(columns),
+		Value: 0,
 	}
 
 	if level == 1 {
-		index = getBestMove(columns, 1, 5)
+		move = getBestMove(columns, 1, 3)
+	} else if level == 2 {
+		move = getBestMove(columns, 1, 5)
 	}
 
-	if level == 2 {
-		index = getBestMove(columns, 1, 10)
-	}
-
-	return index
+	return move
 }
 
-func getBestMove(columns *[]Column, startingUser uint, maxDepth uint) uint {
+func getBestMove(columns *[]Column, startingUser uint, maxDepth uint) MiniMax {
 	tempColumns := make([]Column, len(*columns))
 	miniMaxes := make([]MiniMax, len(*columns))
 
@@ -97,7 +119,7 @@ func getBestMove(columns *[]Column, startingUser uint, maxDepth uint) uint {
 		log.Printf("Strongest move: %d. Value: %f", move.Move, move.Value)
 	}
 
-	return move.Move
+	return move
 }
 
 func tryMoves(columns []Column, userID uint, startColumn uint, index uint, miniMaxes []MiniMax, maxDepth uint, currentDepth uint) []MiniMax {
@@ -138,7 +160,7 @@ func getAverageStrength(miniMaxes *[]MiniMax) float64 {
 func getStrongestMove(miniMaxes *[]MiniMax) MiniMax {
 	strongestMove := MiniMax{
 		Move:  10000,
-		Value: -10000,
+		Value: -10e9,
 	}
 
 	for _, miniMax := range *miniMaxes {
@@ -151,10 +173,10 @@ func getStrongestMove(miniMaxes *[]MiniMax) MiniMax {
 }
 
 func allValuesAreEqual(miniMaxes *[]MiniMax) bool {
-	var value float64 = -100000
+	var value float64 = -10e9
 
 	for _, miniMax := range *miniMaxes {
-		if value == -100000 {
+		if value == -10e9 {
 			value = miniMax.Value
 		}
 
