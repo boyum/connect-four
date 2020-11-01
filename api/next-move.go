@@ -17,6 +17,11 @@ type Column struct {
 	Discs []Disc `json:"discs"`
 }
 
+type MiniMax struct {
+	Move  uint    `json:"move"`
+	Value float64 `json:"value"`
+}
+
 // Handler Exported http handler
 func Handler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Got request")
@@ -28,7 +33,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	log.Printf("Current board:\n%s", formatColumns(columns))
+	log.Printf("Current board:\n%s", formatColumns(&columns))
 
 	index := findNextMove(&columns, 1)
 
@@ -60,48 +65,140 @@ func findNextMove(columns *[]Column, level uint) uint {
 	}
 
 	if level == 1 {
-		index = tryMoves(*columns, 1)
+		index = getBestMove(columns, 1, 5)
+	}
+
+	if level == 2 {
+		index = getBestMove(columns, 1, 10)
 	}
 
 	return index
 }
 
-func tryMoves(columns []Column, userID uint) uint {
+func getBestMove(columns *[]Column, startingUser uint, maxDepth uint) uint {
+	tempColumns := make([]Column, len(*columns))
+	miniMaxes := make([]MiniMax, len(*columns))
+
+	for index := range *columns {
+		copy(tempColumns, *columns)
+		allMoves := tryMoves(tempColumns, 1, uint(index), uint(index), nil, maxDepth, maxDepth)
+
+		miniMaxes[index].Move = uint(index)
+		miniMaxes[index].Value = getAverageStrength(&allMoves)
+	}
+
+	move := getStrongestMove(&miniMaxes)
+
+	log.Printf("Minimaxes:\n%v", miniMaxes)
+
+	if allValuesAreEqual(&miniMaxes) {
+		move.Move = randomIndex(columns)
+	} else {
+		log.Printf("Strongest move: %d. Value: %f", move.Move, move.Value)
+	}
+
+	return move.Move
+}
+
+func tryMoves(columns []Column, userID uint, startColumn uint, index uint, miniMaxes []MiniMax, maxDepth uint, currentDepth uint) []MiniMax {
 	tempColumns := make([]Column, len(columns))
+	isWinningPosition := false
 
-	for index := range columns {
-		copy(tempColumns, columns)
+	if miniMaxes == nil {
+		miniMaxes = make([]MiniMax, len(columns))
+	}
 
-		if tryMove(tempColumns, index, userID) {
-			log.Printf("Found winning move: %d", index)
+	if currentDepth > 0 {
+		for i := 0; i < len(columns); i++ {
+			copy(tempColumns, columns)
 
-			return uint(index)
+			tempColumns, isWinningPosition = tryMove(&tempColumns, uint(index), userID)
+			strength := getMoveMiniMaxValue(isWinningPosition, userID)
+
+			newMiniMaxes := tryMoves(tempColumns, 1-userID, startColumn, uint(i), miniMaxes, maxDepth, currentDepth-1)
+			averageStrength := strength + newMiniMaxes[startColumn].Value
+
+			miniMaxes[startColumn].Value = (miniMaxes[startColumn].Value + averageStrength) / 2
 		}
 	}
 
-	return randomIndex(&columns)
+	return miniMaxes
 }
 
-func tryMove(columns []Column, index int, userID uint) bool {
-	columnCanFitMoreDiscs := len(columns[index].Discs) < 8
+func getAverageStrength(miniMaxes *[]MiniMax) float64 {
+	totalStrength := 0.0
+
+	for _, miniMax := range *miniMaxes {
+		totalStrength += miniMax.Value
+	}
+
+	return totalStrength / float64(len(*miniMaxes))
+}
+
+func getStrongestMove(miniMaxes *[]MiniMax) MiniMax {
+	strongestMove := MiniMax{
+		Move:  10000,
+		Value: -10000,
+	}
+
+	for _, miniMax := range *miniMaxes {
+		if miniMax.Value > strongestMove.Value {
+			strongestMove = miniMax
+		}
+	}
+
+	return strongestMove
+}
+
+func allValuesAreEqual(miniMaxes *[]MiniMax) bool {
+	var value float64 = -100000
+
+	for _, miniMax := range *miniMaxes {
+		if value == -100000 {
+			value = miniMax.Value
+		}
+
+		if value != miniMax.Value {
+			return false
+		}
+	}
+
+	return true
+}
+
+func getMoveMiniMaxValue(isWinningPosition bool, userID uint) float64 {
+	strength := 0.0
+
+	if isWinningPosition {
+		if userID == 1 {
+			strength = 100.0
+		} else {
+			strength = -1000.0
+		}
+	} else {
+		strength = -0.1
+	}
+
+	return strength
+}
+
+func tryMove(columns *[]Column, index uint, userID uint) ([]Column, bool) {
+	columnCanFitMoreDiscs := len((*columns)[index].Discs) < 8
 	if columnCanFitMoreDiscs {
 		var disc Disc
 		disc.User = userID
 
-		columns[index].Discs = append(columns[index].Discs, disc)
+		(*columns)[index].Discs = append((*columns)[index].Discs, disc)
 
-		return hasWinningPosition(&columns)
+		return *columns, hasWinningPosition(columns)
 	}
 
-	return false
+	return *columns, false
 }
 
 func hasWinningPosition(columns *[]Column) bool {
-	log.Printf("Checking board\n%s", formatColumns(*columns))
-
-	for index, column := range *columns {
+	for _, column := range *columns {
 		if columnHasWinningPosition(&column) {
-			log.Printf("Column %d has winning position", index)
 			return true
 		}
 	}
@@ -112,7 +209,7 @@ func hasWinningPosition(columns *[]Column) bool {
 		}
 	}
 
-	return false
+	return isDiagonalWin(columns)
 }
 
 func columnHasWinningPosition(column *Column) bool {
@@ -304,7 +401,6 @@ func rowHasWinningPosition(columns *[]Column, rowIndex int) bool {
 
 		isWinningPosition := discsInARow > 3
 		if isWinningPosition {
-			log.Printf("Row %d has winning position", rowIndex)
 			return true
 		}
 	}
@@ -312,8 +408,7 @@ func rowHasWinningPosition(columns *[]Column, rowIndex int) bool {
 	return false
 }
 
-func formatColumns(columns []Column) string {
-
+func formatColumns(columns *[]Column) string {
 	rows := make([][]string, 8)
 	rowsFormatted := ""
 
@@ -322,7 +417,7 @@ func formatColumns(columns []Column) string {
 		row := rows[i]
 
 		for j := range row {
-			column := columns[j]
+			column := (*columns)[j]
 			if len(column.Discs) > i {
 				row[j] = fmt.Sprintf("%d", column.Discs[i])
 			} else {
