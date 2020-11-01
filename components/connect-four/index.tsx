@@ -19,6 +19,7 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
   const [winner, setWinner] = useState<UserEnum>(null);
   const [mode, setMode] = useState(1);
   const [difficulty, setDifficulty] = useState(2);
+  const [connectFourClass, setConnectFourClass] = useState(styles.connectFour);
 
   const onColumnClick = (columnIndex: number) => {
     const columnCanFitMoreDiscs = columns[columnIndex].discs.length < maxColumnHeight;
@@ -46,6 +47,7 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
   const reset = () => {
     setWinner(null);
     setActiveUser(UserEnum.Player1);
+    setConnectFourClass(`${styles.connectFour}`);
     dispatch({ type: ActionEnum.RESET, payload: { numberOfColumns } });
   }
 
@@ -76,7 +78,7 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
             columns,
             difficulty,
           };
-          
+
           const nextMove = await fetch('/api/next-move', {
             body: JSON.stringify(body),
             method: 'POST',
@@ -88,7 +90,7 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
           const response: ApiResponse = (await nextMove.json());
 
           console.info(`Process time: ${(response.processDuration / 10e8).toFixed(2)} seconds`);
-          
+
           dispatch({
             type: ActionEnum.ADD_DISC, payload: {
               index: response.move.move,
@@ -111,15 +113,29 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
   useEffect(() => {
     const hasWinner = winner !== null;
     if (hasWinner) {
-      alert(`${(winner as UserEnum) === UserEnum.Player1 ? 'Green' : 'Pink'} player won`);
-
-      reset();
+      setConnectFourClass(`${styles.connectFour} ${styles.connectFourGameOver}`);
     }
-
   }, [winner]);
 
+  const getGameOverText = () => {
+    let gameOverText = '';
+
+    const isSinglePlayer = mode === 1;
+    if (isSinglePlayer) {
+      gameOverText = (winner as UserEnum) === UserEnum.Player1
+        ? `✨ Congratulations! You won! ✨`
+        : 'The computer won. Better luck next time! 🖥';
+    } else {
+      gameOverText = (winner as UserEnum) === UserEnum.Player1
+        ? `Green player won! 🌱`
+        : 'Pink player won! 🌸';
+    }
+
+    return gameOverText;
+  }
+  
   return (
-    <div className={styles.connectFour}>
+    <div className={connectFourClass}>
       <div className={styles.buttons}>
         <button type="button" className={styles.modeToggle} onClick={toggleMode} data-mode={mode}>
           <span className={styles.onePlayer}>One player</span>
@@ -127,7 +143,14 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
         </button>
         <button type="button" className={styles.resetButton} onClick={reset}>Reset</button>
       </div>
-      <Board columns={columns} maxColumnHeight={maxColumnHeight} onColumnClick={onColumnClick} />
+      <div className={styles.board}>
+        <Board columns={columns} maxColumnHeight={maxColumnHeight} onColumnClick={onColumnClick} />
+      </div>
+      <div className={styles.gameOver}>
+        {getGameOverText()}
+        <br />
+        <button type="button" className={styles.playAgainButton} onClick={reset}>Play again</button>
+      </div>
     </div>
   )
 }
