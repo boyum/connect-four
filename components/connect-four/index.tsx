@@ -148,6 +148,7 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
       </div>
       <div className={styles.gameOver}>
         {getGameOverText()}
+        <br />
         <button type="button" className={styles.playAgainButton} onClick={reset}>Play again</button>
       </div>
     </div>
