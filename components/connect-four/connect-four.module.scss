@@ -16,7 +16,8 @@
 }
 
 .modeToggle,
-.resetButton {
+.resetButton,
+.playAgainButton {
   background-color: transparent;
   border: 4px solid var(--background-color);
   border-radius: 6px;
@@ -60,5 +61,35 @@
   .modeToggle[data-mode="2"] & {
     background-color: var(--background-color);
     opacity: 1;
+  }
+}
+
+.gameOver {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.2);
+  color: #333;
+  display: none;
+  font-size: 2rem;
+  left: 50%;
+  max-width: 25rem;
+  padding: 2rem 3rem;
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+}
+
+.connectFourGameOver {
+  position: relative;
+
+  .buttons,
+  .board {
+    opacity: 0.5;
+  }
+
+  .gameOver {
+    display: block;
   }
 }
