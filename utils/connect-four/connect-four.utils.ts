@@ -57,13 +57,13 @@ export function rowHasWinningPosition(rowIndex: number, columns: Column[]): bool
 }
 
 function isDiagonalWin(columns: Column[], maxNumberOfRows: number) {
-  let x = null;
-  let y = null;
-  let xtemp = null;
-  let ytemp = null;
+  let x: number = null;
+  let y: number = null;
+  let xtemp: number = null;
+  let ytemp: number = null;
   let currentValue: Disc = null;
   let previousValue: Disc = undefined;
-  let tally = 0;
+  let tally: number = 0;
 
   // Test for down-right diagonals across the top.
   for (x = 0; x < columns.length; x++) {
@@ -73,7 +73,7 @@ function isDiagonalWin(columns: Column[], maxNumberOfRows: number) {
     while (xtemp < columns.length && ytemp <= maxNumberOfRows) {
       currentValue = columns[xtemp].discs[ytemp];
       if (currentValue !== undefined && previousValue !== undefined && currentValue.user === previousValue.user) {
-        tally += 1;
+        tally++;
       } else {
         // Reset the tally if you find a gap.
         tally = 0;
@@ -100,7 +100,7 @@ function isDiagonalWin(columns: Column[], maxNumberOfRows: number) {
     while (0 <= xtemp && ytemp <= maxNumberOfRows) {
       currentValue = columns[xtemp].discs[ytemp];
       if (currentValue !== undefined && previousValue !== undefined && currentValue.user === previousValue.user) {
-        tally += 1;
+        tally++;
       } else {
         // Reset the tally if you find a gap.
         tally = 0;
@@ -127,7 +127,7 @@ function isDiagonalWin(columns: Column[], maxNumberOfRows: number) {
     while (xtemp < columns.length && ytemp <= maxNumberOfRows) {
       currentValue = columns[xtemp].discs[ytemp];
       if (currentValue !== undefined && previousValue !== undefined && currentValue.user === previousValue.user) {
-        tally += 1;
+        tally++;
       } else {
         // Reset the tally if you find a gap.
         tally = 0;
@@ -154,7 +154,7 @@ function isDiagonalWin(columns: Column[], maxNumberOfRows: number) {
     while (0 <= xtemp && ytemp <= maxNumberOfRows) {
       currentValue = columns[xtemp].discs[ytemp];
       if (currentValue !== undefined && previousValue !== undefined && currentValue.user === previousValue.user) {
-        tally += 1;
+        tally++;
       } else {
         // Reset the tally if you find a gap.
         tally = 0;

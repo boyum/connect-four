@@ -60,20 +60,19 @@ func findNextMove(columns *[]Column, level uint) uint {
 	}
 
 	if level == 1 {
-		index = tryMoves(*columns)
+		index = tryMoves(*columns, 1)
 	}
 
 	return index
 }
 
-func tryMoves(columns []Column) uint {
+func tryMoves(columns []Column, userID uint) uint {
 	tempColumns := make([]Column, len(columns))
 
 	for index := range columns {
 		copy(tempColumns, columns)
-		log.Printf("Temp columns: %v", tempColumns)
 
-		if tryMove(tempColumns, index) {
+		if tryMove(tempColumns, index, userID) {
 			log.Printf("Found winning move: %d", index)
 
 			return uint(index)
@@ -83,11 +82,11 @@ func tryMoves(columns []Column) uint {
 	return randomIndex(&columns)
 }
 
-func tryMove(columns []Column, index int) bool {
+func tryMove(columns []Column, index int, userID uint) bool {
 	columnCanFitMoreDiscs := len(columns[index].Discs) < 8
 	if columnCanFitMoreDiscs {
 		var disc Disc
-		disc.User = 1
+		disc.User = userID
 
 		columns[index].Discs = append(columns[index].Discs, disc)
 
@@ -133,6 +132,152 @@ func columnHasWinningPosition(column *Column) bool {
 		if isWinningPosition {
 			return true
 		}
+	}
+
+	return false
+}
+
+func isDiagonalWin(columns *[]Column) bool {
+	maxNumberOfRows := 8
+	// x := -1
+	// y := -1
+	// xtemp := -1
+	// ytemp := -1
+	var currentDisc Disc = Disc{}
+	var previousDisc Disc = Disc{}
+	var currentColumn Column = Column{}
+	discsInARow := 1
+
+	// Test for down-right diagonals across the top.
+	for x := range *columns {
+		xtemp := x
+		ytemp := 0
+
+		for xtemp < len(*columns) && ytemp <= maxNumberOfRows {
+			currentColumn = (*columns)[xtemp]
+
+			if len(currentColumn.Discs) > ytemp {
+				currentDisc = currentColumn.Discs[ytemp]
+
+				if (previousDisc != Disc{}) && currentDisc.User == previousDisc.User {
+					discsInARow++
+				} else {
+					discsInARow = 1
+				}
+
+				if discsInARow == 4 {
+					return true
+				}
+
+			}
+
+			previousDisc = currentDisc
+
+			xtemp++
+			ytemp++
+		}
+
+		discsInARow = 0
+		previousDisc = Disc{}
+	}
+
+	// Test for down-left diagonals across the top.
+	for x := range *columns {
+		xtemp := x
+		ytemp := 0
+
+		for 0 <= xtemp && ytemp <= maxNumberOfRows {
+			currentColumn = (*columns)[xtemp]
+
+			if len(currentColumn.Discs) > ytemp {
+				currentDisc = currentColumn.Discs[ytemp]
+
+				if (previousDisc != Disc{}) && currentDisc.User == previousDisc.User {
+					discsInARow++
+				} else {
+					discsInARow = 1
+				}
+
+				if discsInARow == 4 {
+					return true
+				}
+
+			}
+
+			previousDisc = currentDisc
+
+			xtemp--
+			ytemp++
+		}
+
+		discsInARow = 0
+		previousDisc = Disc{}
+	}
+
+	// Test for down-right diagonals down the left side.
+	for y := range *columns {
+		xtemp := 0
+		ytemp := y
+
+		for xtemp < len(*columns) && ytemp <= maxNumberOfRows {
+			currentColumn = (*columns)[xtemp]
+
+			if len(currentColumn.Discs) > ytemp {
+				currentDisc = currentColumn.Discs[ytemp]
+
+				if (previousDisc != Disc{}) && currentDisc.User == previousDisc.User {
+					discsInARow++
+				} else {
+					discsInARow = 1
+				}
+
+				if discsInARow == 4 {
+					return true
+				}
+
+			}
+
+			previousDisc = currentDisc
+
+			xtemp++
+			ytemp++
+		}
+
+		discsInARow = 0
+		previousDisc = Disc{}
+	}
+
+	// Test for down-left diagonals down the right side.
+	for y := range *columns {
+		xtemp := len(*columns) - 1
+		ytemp := y
+
+		for 0 <= xtemp && ytemp <= maxNumberOfRows {
+			currentColumn = (*columns)[xtemp]
+
+			if len(currentColumn.Discs) > ytemp {
+				currentDisc = currentColumn.Discs[ytemp]
+
+				if (previousDisc != Disc{}) && currentDisc.User == previousDisc.User {
+					discsInARow++
+				} else {
+					discsInARow = 1
+				}
+
+				if discsInARow == 4 {
+					return true
+				}
+
+			}
+
+			previousDisc = currentDisc
+
+			xtemp--
+			ytemp++
+		}
+
+		discsInARow = 0
+		previousDisc = Disc{}
 	}
 
 	return false
