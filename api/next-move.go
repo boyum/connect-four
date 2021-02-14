@@ -214,7 +214,7 @@ func getMoveMiniMaxValue(isWinningPosition bool, userID uint) float64 {
 
 	if isWinningPosition {
 		if userID == 1 {
-			strength = 100.0
+			strength = 1000.0
 		} else {
 			strength = -1000.0
 		}
@@ -226,17 +226,19 @@ func getMoveMiniMaxValue(isWinningPosition bool, userID uint) float64 {
 }
 
 func tryMove(columns *[]Column, index uint, userID uint) ([]Column, bool) {
+	isWin := false
 	columnCanFitMoreDiscs := len((*columns)[index].Discs) < 8
+
 	if columnCanFitMoreDiscs {
 		var disc Disc
 		disc.User = userID
 
 		(*columns)[index].Discs = append((*columns)[index].Discs, disc)
 
-		return *columns, hasWinningPosition(columns)
+		isWin = hasWinningPosition(columns)
 	}
 
-	return *columns, false
+	return *columns, isWin
 }
 
 func hasWinningPosition(columns *[]Column) bool {
