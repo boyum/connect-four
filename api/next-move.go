@@ -142,17 +142,27 @@ func tryMoves(columns []Column, userID uint, startColumn uint, index uint, miniM
 	}
 
 	if currentDepth > 0 {
+		waitGroup := &sync.WaitGroup{}
+
 		for i := 0; i < len(columns); i++ {
-			copy(tempColumns, columns)
+			waitGroup.Add(1)
 
-			tempColumns, isWinningPosition = tryMove(&tempColumns, uint(index), userID)
-			strength := getMoveMiniMaxValue(isWinningPosition, userID)
+			go func(miniMaxes []MiniMax, i int, startColumn uint) {
+				copy(tempColumns, columns)
 
-			newMiniMaxes := tryMoves(tempColumns, 1-userID, startColumn, uint(i), miniMaxes, maxDepth, currentDepth-1)
-			averageStrength := strength + newMiniMaxes[startColumn].Value
+				tempColumns, isWinningPosition = tryMove(&tempColumns, uint(index), userID)
+				strength := getMoveMiniMaxValue(isWinningPosition, userID)
 
-			miniMaxes[startColumn].Value = (miniMaxes[startColumn].Value + averageStrength) / 2
+				newMiniMaxes := tryMoves(tempColumns, 1-userID, startColumn, uint(i), miniMaxes, maxDepth, currentDepth-1)
+				averageStrength := strength + newMiniMaxes[startColumn].Value
+
+				miniMaxes[startColumn].Value = (miniMaxes[startColumn].Value + averageStrength) / 2
+
+				waitGroup.Done()
+			}(miniMaxes, i, startColumn)
 		}
+
+		waitGroup.Wait()
 	}
 
 	return miniMaxes
