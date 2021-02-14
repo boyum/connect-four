@@ -6,6 +6,8 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"reflect"
+	"sync"
 	"time"
 )
 
@@ -101,13 +103,25 @@ func getBestMove(columns *[]Column, startingUser uint, maxDepth uint) MiniMax {
 	tempColumns := make([]Column, len(*columns))
 	miniMaxes := make([]MiniMax, len(*columns))
 
-	for index := range *columns {
-		copy(tempColumns, *columns)
-		allMoves := tryMoves(tempColumns, 1, uint(index), uint(index), nil, maxDepth, maxDepth)
+	waitGroup := &sync.WaitGroup{}
 
-		miniMaxes[index].Move = uint(index)
-		miniMaxes[index].Value = getAverageStrength(&allMoves)
+	for index := range *columns {
+		go func(miniMaxes []MiniMax, index int) {
+			waitGroup.Add(1)
+			defer waitGroup.Done()
+
+			copy(tempColumns, *columns)
+
+			allMoves := tryMoves(tempColumns, 1, uint(index), uint(index), nil, maxDepth, maxDepth)
+
+			log.Printf("Finihed waiting")
+
+			miniMaxes[index].Move = uint(index)
+			miniMaxes[index].Value = getAverageStrength(&allMoves)
+		}(miniMaxes, index)
 	}
+
+	waitGroup.Wait()
 
 	move := getStrongestMove(&miniMaxes)
 
@@ -120,6 +134,22 @@ func getBestMove(columns *[]Column, startingUser uint, maxDepth uint) MiniMax {
 	}
 
 	return move
+}
+
+// chanToSlice reads all data from ch (which must be a chan), returning a
+// slice of the data. If ch is a 'T chan' then the return value is of type
+// []T inside the returned interface.
+// A typical call would be sl := chanToSlice(ch).([]int)
+func chanToSlice(ch interface{}) interface{} {
+	chv := reflect.ValueOf(ch)
+	slv := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(ch).Elem()), 0, 0)
+	for {
+		v, ok := chv.Recv()
+		if !ok {
+			return slv.Interface()
+		}
+		slv = reflect.Append(slv, v)
+	}
 }
 
 func tryMoves(columns []Column, userID uint, startColumn uint, index uint, miniMaxes []MiniMax, maxDepth uint, currentDepth uint) []MiniMax {
