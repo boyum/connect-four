@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"net/http"
 	"sync"
@@ -151,7 +152,7 @@ func tryMoves(columns []Column, userID uint, startColumn uint, index uint, miniM
 				copy(tempColumns, columns)
 
 				tempColumns, isWinningPosition = tryMove(&tempColumns, uint(index), userID)
-				strength := getMoveMiniMaxValue(isWinningPosition, userID)
+				strength := getMoveMiniMaxValue(isWinningPosition, userID, currentDepth, maxDepth)
 
 				newMiniMaxes := tryMoves(tempColumns, 1-userID, startColumn, uint(i), miniMaxes, maxDepth, currentDepth-1)
 				averageStrength := strength + newMiniMaxes[startColumn].Value
@@ -209,17 +210,16 @@ func allValuesAreEqual(miniMaxes *[]MiniMax) bool {
 	return true
 }
 
-func getMoveMiniMaxValue(isWinningPosition bool, userID uint) float64 {
+func getMoveMiniMaxValue(isWinningPosition bool, userID uint, currentDepth uint, maxDepth uint) float64 {
 	strength := 0.0
+	strengthMultiplier := int(maxDepth - currentDepth)
 
 	if isWinningPosition {
-		if userID == 1 {
-			strength = 1000.0
-		} else {
-			strength = -1000.0
+		strength = math.Pow10(strengthMultiplier)
+
+		if userID != 1 {
+			strength *= -1
 		}
-	} else {
-		strength = -0.1
 	}
 
 	return strength
