@@ -147,7 +147,7 @@ export default function ConnectFour({
         : "The computer won. Better luck next time! 🖥";
     } else {
       gameOverText = playerOneWon
-        ? `Green player won! 🌱`
+        ? "Green player won! 🌱"
         : "Pink player won! 🌸";
     }
 
