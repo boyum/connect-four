@@ -121,12 +121,13 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
     let gameOverText = '';
 
     const isSinglePlayer = mode === 1;
+    const playerOneWon = (winner as UserEnum) === UserEnum.Player1;
     if (isSinglePlayer) {
-      gameOverText = (winner as UserEnum) === UserEnum.Player1
+      gameOverText = playerOneWon
         ? `✨ Congratulations! You won! ✨`
         : 'The computer won. Better luck next time! 🖥';
     } else {
-      gameOverText = (winner as UserEnum) === UserEnum.Player1
+      gameOverText = playerOneWon
         ? `Green player won! 🌱`
         : 'Pink player won! 🌸';
     }
