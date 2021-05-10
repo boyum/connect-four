@@ -1,4 +1,4 @@
-import Disc from './Disc';
+import Disc from "./Disc";
 
 type Column = {
   discs: Disc[];

@@ -1,12 +1,12 @@
-import Column from '../../models/Column';
-import Disc from '../../models/Disc';
-import UserEnum from '../../models/UserEnum';
+import Column from "../../models/Column";
+import Disc from "../../models/Disc";
+import UserEnum from "../../models/UserEnum";
 
 export function initColumns(numberOfColumns: number): Column[] {
   return Array(numberOfColumns)
     .fill(undefined)
     .map(() => ({
-      discs: []
+      discs: [],
     }));
 }
 
@@ -32,7 +32,10 @@ export function columnHasWinningPosition(column: Column): boolean {
   return false;
 }
 
-export function rowHasWinningPosition(rowIndex: number, columns: Column[]): boolean {
+export function rowHasWinningPosition(
+  rowIndex: number,
+  columns: Column[],
+): boolean {
   let discsInARow = 1;
   let previousUser: UserEnum;
 
@@ -72,7 +75,11 @@ function isDiagonalWin(columns: Column[], maxNumberOfRows: number) {
 
     while (xtemp < columns.length && ytemp <= maxNumberOfRows) {
       currentValue = columns[xtemp].discs[ytemp];
-      if (currentValue !== undefined && previousValue !== undefined && currentValue.user === previousValue.user) {
+      if (
+        currentValue !== undefined &&
+        previousValue !== undefined &&
+        currentValue.user === previousValue.user
+      ) {
         tally++;
       } else {
         // Reset the tally if you find a gap.
@@ -99,7 +106,11 @@ function isDiagonalWin(columns: Column[], maxNumberOfRows: number) {
 
     while (0 <= xtemp && ytemp <= maxNumberOfRows) {
       currentValue = columns[xtemp].discs[ytemp];
-      if (currentValue !== undefined && previousValue !== undefined && currentValue.user === previousValue.user) {
+      if (
+        currentValue !== undefined &&
+        previousValue !== undefined &&
+        currentValue.user === previousValue.user
+      ) {
         tally++;
       } else {
         // Reset the tally if you find a gap.
@@ -126,7 +137,11 @@ function isDiagonalWin(columns: Column[], maxNumberOfRows: number) {
 
     while (xtemp < columns.length && ytemp <= maxNumberOfRows) {
       currentValue = columns[xtemp].discs[ytemp];
-      if (currentValue !== undefined && previousValue !== undefined && currentValue.user === previousValue.user) {
+      if (
+        currentValue !== undefined &&
+        previousValue !== undefined &&
+        currentValue.user === previousValue.user
+      ) {
         tally++;
       } else {
         // Reset the tally if you find a gap.
@@ -153,7 +168,11 @@ function isDiagonalWin(columns: Column[], maxNumberOfRows: number) {
 
     while (0 <= xtemp && ytemp <= maxNumberOfRows) {
       currentValue = columns[xtemp].discs[ytemp];
-      if (currentValue !== undefined && previousValue !== undefined && currentValue.user === previousValue.user) {
+      if (
+        currentValue !== undefined &&
+        previousValue !== undefined &&
+        currentValue.user === previousValue.user
+      ) {
         tally++;
       } else {
         // Reset the tally if you find a gap.
@@ -177,7 +196,10 @@ function isDiagonalWin(columns: Column[], maxNumberOfRows: number) {
   return false;
 }
 
-export function isWinningPosition(columns: Column[], maxNumberOfRows: number): boolean {
+export function isWinningPosition(
+  columns: Column[],
+  maxNumberOfRows: number,
+): boolean {
   for (const column of columns) {
     if (columnHasWinningPosition(column)) {
       return true;
@@ -192,4 +214,3 @@ export function isWinningPosition(columns: Column[], maxNumberOfRows: number): b
 
   return isDiagonalWin(columns, maxNumberOfRows);
 }
-
