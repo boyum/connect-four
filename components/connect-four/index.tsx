@@ -29,7 +29,7 @@ export default function ConnectFour({
   const [activeUser, setActiveUser] = useState(UserEnum.Player1);
   const [winner, setWinner] = useState<UserEnum>(null);
   const [mode, setMode] = useState(1);
-  const [difficulty, setDifficulty] = useState(2);
+  const [difficulty, setDifficulty] = useState(3);
   const [connectFourClass, setConnectFourClass] = useState(styles.connectFour);
 
   const onColumnClick = (columnIndex: number) => {
