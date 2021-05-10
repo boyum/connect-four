@@ -1,8 +1,8 @@
-import MiniMax from './MiniMax';
+import MiniMax from "./MiniMax";
 
 type ApiResponse = {
   move: MiniMax;
   processDuration: number;
-}
+};
 
 export default ApiResponse;

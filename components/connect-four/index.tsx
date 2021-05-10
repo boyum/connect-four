@@ -1,20 +1,31 @@
-import React, { useEffect, useReducer, useState } from 'react';
-import UserEnum from '../../models/UserEnum';
-import DiscModel from '../../models/Disc';
-import connectFourReducer, { ActionEnum } from '../../reducers/connect-four.reducer';
-import { initColumns, isWinningPosition } from '../../utils/connect-four/connect-four.utils';
-import Board from '../board';
-import styles from './connect-four.module.scss';
-import ApiRequest from '../../models/ApiRequest';
-import ApiResponse from '../../models/ApiResponse';
+import React, { useEffect, useReducer, useState } from "react";
+import UserEnum from "../../models/UserEnum";
+import DiscModel from "../../models/Disc";
+import connectFourReducer, {
+  ActionEnum,
+} from "../../reducers/connect-four.reducer";
+import {
+  initColumns,
+  isWinningPosition,
+} from "../../utils/connect-four/connect-four.utils";
+import Board from "../board";
+import styles from "./connect-four.module.scss";
+import ApiRequest from "../../models/ApiRequest";
+import ApiResponse from "../../models/ApiResponse";
 
 interface ComponentProps {
   maxColumnHeight?: number;
   numberOfColumns?: number;
 }
 
-export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }: ComponentProps) {
-  const [columns, dispatch] = useReducer(connectFourReducer, initColumns(numberOfColumns));
+export default function ConnectFour({
+  numberOfColumns = 8,
+  maxColumnHeight = 8,
+}: ComponentProps) {
+  const [columns, dispatch] = useReducer(
+    connectFourReducer,
+    initColumns(numberOfColumns),
+  );
   const [activeUser, setActiveUser] = useState(UserEnum.Player1);
   const [winner, setWinner] = useState<UserEnum>(null);
   const [mode, setMode] = useState(1);
@@ -22,7 +33,8 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
   const [connectFourClass, setConnectFourClass] = useState(styles.connectFour);
 
   const onColumnClick = (columnIndex: number) => {
-    const columnCanFitMoreDiscs = columns[columnIndex].discs.length < maxColumnHeight;
+    const columnCanFitMoreDiscs =
+      columns[columnIndex].discs.length < maxColumnHeight;
 
     if (!columnCanFitMoreDiscs) {
       return;
@@ -35,12 +47,13 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
     }
 
     dispatch({
-      type: ActionEnum.ADD_DISC, payload: {
+      type: ActionEnum.ADD_DISC,
+      payload: {
         index: columnIndex,
         disc: {
           user: activeUser,
         } as DiscModel,
-      }
+      },
     });
   };
 
@@ -49,12 +62,12 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
     setActiveUser(UserEnum.Player1);
     setConnectFourClass(`${styles.connectFour}`);
     dispatch({ type: ActionEnum.RESET, payload: { numberOfColumns } });
-  }
+  };
 
   const toggleMode = () => {
     setMode(3 - mode);
     reset();
-  }
+  };
 
   useEffect(() => {
     const gameHasStarted = columns.flatMap(column => column.discs).length > 0;
@@ -62,10 +75,11 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
       if (isWinningPosition(columns, maxColumnHeight)) {
         setWinner(activeUser);
       } else {
-        setActiveUser(activeUser === UserEnum.Player1 ? UserEnum.Player2 : UserEnum.Player1);
+        setActiveUser(
+          activeUser === UserEnum.Player1 ? UserEnum.Player2 : UserEnum.Player1,
+        );
       }
     }
-
   }, [columns]);
 
   useEffect(() => {
@@ -79,32 +93,35 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
             difficulty,
           };
 
-          const nextMove = await fetch('/api/next-move', {
+          const nextMove = await fetch("/api/next-move", {
             body: JSON.stringify(body),
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
           });
 
-          const response: ApiResponse = (await nextMove.json());
+          const response: ApiResponse = await nextMove.json();
 
-          console.info(`Process time: ${(response.processDuration / 10e8).toFixed(2)} seconds`);
+          console.info(
+            `Process time: ${(response.processDuration / 10e8).toFixed(
+              2,
+            )} seconds`,
+          );
 
           dispatch({
-            type: ActionEnum.ADD_DISC, payload: {
+            type: ActionEnum.ADD_DISC,
+            payload: {
               index: response.move.move,
               disc: {
                 user: activeUser,
               } as DiscModel,
-            }
+            },
           });
-        }
-
-        catch (error) {
+        } catch (error) {
           console.error(error);
         }
-      }
+      };
 
       fetchNextMove();
     }
@@ -113,45 +130,64 @@ export default function ConnectFour({ numberOfColumns = 8, maxColumnHeight = 8 }
   useEffect(() => {
     const hasWinner = winner !== null;
     if (hasWinner) {
-      setConnectFourClass(`${styles.connectFour} ${styles.connectFourGameOver}`);
+      setConnectFourClass(
+        `${styles.connectFour} ${styles.connectFourGameOver}`,
+      );
     }
   }, [winner]);
 
   const getGameOverText = () => {
-    let gameOverText = '';
+    let gameOverText = "";
 
     const isSinglePlayer = mode === 1;
     const playerOneWon = (winner as UserEnum) === UserEnum.Player1;
     if (isSinglePlayer) {
       gameOverText = playerOneWon
         ? `✨ Congratulations! You won! ✨`
-        : 'The computer won. Better luck next time! 🖥';
+        : "The computer won. Better luck next time! 🖥";
     } else {
       gameOverText = playerOneWon
         ? `Green player won! 🌱`
-        : 'Pink player won! 🌸';
+        : "Pink player won! 🌸";
     }
 
     return gameOverText;
-  }
-  
+  };
+
   return (
     <div className={connectFourClass}>
       <div className={styles.buttons}>
-        <button type="button" className={styles.modeToggle} onClick={toggleMode} data-mode={mode}>
+        <button
+          type="button"
+          className={styles.modeToggle}
+          onClick={toggleMode}
+          data-mode={mode}
+        >
           <span className={styles.onePlayer}>One player</span>
           <span className={styles.twoPlayers}>Two players</span>
         </button>
-        <button type="button" className={styles.resetButton} onClick={reset}>Reset</button>
+        <button type="button" className={styles.resetButton} onClick={reset}>
+          Reset
+        </button>
       </div>
       <div className={styles.board}>
-        <Board columns={columns} maxColumnHeight={maxColumnHeight} onColumnClick={onColumnClick} />
+        <Board
+          columns={columns}
+          maxColumnHeight={maxColumnHeight}
+          onColumnClick={onColumnClick}
+        />
       </div>
       <div className={styles.gameOver}>
         {getGameOverText()}
         <br />
-        <button type="button" className={styles.playAgainButton} onClick={reset}>Play again</button>
+        <button
+          type="button"
+          className={styles.playAgainButton}
+          onClick={reset}
+        >
+          Play again
+        </button>
       </div>
     </div>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-import Column from './Column';
+import Column from "./Column";
 
 type ApiRequest = {
   columns: Column[];
   difficulty: number;
-}
+};
 
 export default ApiRequest;

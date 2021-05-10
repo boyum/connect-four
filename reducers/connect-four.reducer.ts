@@ -1,10 +1,10 @@
-import Column from '../models/Column';
-import Disc from '../models/Disc';
-import { initColumns } from '../utils/connect-four/connect-four.utils';
+import Column from "../models/Column";
+import Disc from "../models/Disc";
+import { initColumns } from "../utils/connect-four/connect-four.utils";
 
 export enum ActionEnum {
   ADD_DISC,
-  RESET
+  RESET,
 }
 
 type Action = {
@@ -16,7 +16,10 @@ type Action = {
   };
 };
 
-export default function connectFourReducer(state: Column[], { type, payload }: Action) {
+export default function connectFourReducer(
+  state: Column[],
+  { type, payload }: Action,
+) {
   switch (type) {
     case ActionEnum.ADD_DISC:
       return state.map((column, index) => {
@@ -32,6 +35,6 @@ export default function connectFourReducer(state: Column[], { type, payload }: A
     case ActionEnum.RESET:
       return initColumns(payload.numberOfColumns);
   }
-  
+
   throw new Error(`Unsupported action '${type}'`);
 }
