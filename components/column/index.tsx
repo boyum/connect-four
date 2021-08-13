@@ -18,7 +18,7 @@ export default function Column({
 
   useEffect(() => {
     setDisabled(column.discs.length >= maxColumnHeight);
-  }, [column]);
+  }, [column, maxColumnHeight]);
 
   return (
     <button className={styles.column} onClick={onClick} disabled={disabled}>

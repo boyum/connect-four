@@ -80,7 +80,7 @@ export default function ConnectFour({
         );
       }
     }
-  }, [columns]);
+  }, [columns, activeUser, maxColumnHeight]);
 
   useEffect(() => {
     const onePlayerMode = mode === 1;
@@ -125,7 +125,7 @@ export default function ConnectFour({
 
       fetchNextMove();
     }
-  }, [activeUser]);
+  }, [activeUser, columns, difficulty, mode]);
 
   useEffect(() => {
     const hasWinner = winner !== null;
