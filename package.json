@@ -7,22 +7,19 @@
     "build": "next build",
     "start": "next start",
     "dev-with-api": "npx vercel dev",
-    "prettier:check": "prettier --check .",
-    "prettier:write": "prettier --write ."
+    "lint": "biome check",
+    "lint:fix": "biome check --write"
   },
   "dependencies": {
-    "@zeit/next-sass": "^1.0.1",
     "next": "^14.2.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "sass": "^1.77.8"
   },
   "devDependencies": {
-    "@types/node": "^18.16.3",
+    "@biomejs/biome": "^1.8.3",
+    "@types/node": "^22.1.0",
     "@types/react": "^18.3.3",
-    "eslint": "8.57.0",
-    "eslint-config-next": "14.2.5",
-    "prettier": "^3.3.3",
     "typescript": "^5.5.4"
   }
 }

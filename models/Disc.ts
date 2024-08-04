@@ -1,4 +1,4 @@
-import UserEnum from "./UserEnum";
+import type UserEnum from "./UserEnum";
 
 type Disc = {
   user: UserEnum;

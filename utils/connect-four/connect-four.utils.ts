@@ -1,6 +1,6 @@
-import Column from "../../models/Column";
-import Disc from "../../models/Disc";
-import UserEnum from "../../models/UserEnum";
+import type Column from "../../models/Column";
+import type Disc from "../../models/Disc";
+import type UserEnum from "../../models/UserEnum";
 
 export function initColumns(numberOfColumns: number): Column[] {
   return Array(numberOfColumns)
@@ -12,7 +12,7 @@ export function initColumns(numberOfColumns: number): Column[] {
 
 export function columnHasWinningPosition(column: Column): boolean {
   let discsInARow = 1;
-  let previousUser: UserEnum;
+  let previousUser: UserEnum | undefined;
 
   for (const disc of column.discs) {
     if (previousUser === disc.user) {
@@ -37,7 +37,7 @@ export function rowHasWinningPosition(
   columns: Column[],
 ): boolean {
   let discsInARow = 1;
-  let previousUser: UserEnum;
+  let previousUser: UserEnum | undefined;
 
   for (const column of columns) {
     const disc = column.discs[rowIndex];
@@ -60,13 +60,13 @@ export function rowHasWinningPosition(
 }
 
 function isDiagonalWin(columns: Column[], maxNumberOfRows: number) {
-  let x: number = null;
-  let y: number = null;
-  let xtemp: number = null;
-  let ytemp: number = null;
-  let currentValue: Disc = null;
-  let previousValue: Disc = undefined;
-  let tally: number = 0;
+  let x: number | null = null;
+  let y: number | null = null;
+  let xtemp: number | null = null;
+  let ytemp: number | null = null;
+  let currentValue: Disc | null = null;
+  let previousValue: Disc | undefined = undefined;
+  let tally = 0;
 
   // Test for down-right diagonals across the top.
   for (x = 0; x < columns.length; x++) {

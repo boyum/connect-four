@@ -1,4 +1,4 @@
-import MiniMax from "./MiniMax";
+import type MiniMax from "./MiniMax";
 
 type ApiResponse = {
   move: MiniMax;
