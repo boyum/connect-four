@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import ColumnModel from "../../models/Column";
+import type React from "react";
+import { useEffect, useState } from "react";
+import type ColumnModel from "../../models/Column";
 import Disc from "../disc";
 import styles from "./column.module.scss";
 
@@ -21,9 +22,15 @@ export default function Column({
   }, [column, maxColumnHeight]);
 
   return (
-    <button className={styles.column} onClick={onClick} disabled={disabled}>
-      {column.discs.map((disc, index) => (
-        <Disc key={`disc-${index}`} disc={disc} />
+    <button
+      className={styles.column}
+      onClick={onClick}
+      disabled={disabled}
+      type="button"
+    >
+      {column.discs.map(disc => (
+        // biome-ignore lint/correctness/useJsxKeyInIterable: The only key we have is the disc's index
+        <Disc disc={disc} />
       ))}
     </button>
   );

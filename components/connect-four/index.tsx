@@ -1,6 +1,8 @@
 import React, { useEffect, useReducer, useState } from "react";
+import type ApiRequest from "../../models/ApiRequest";
+import type ApiResponse from "../../models/ApiResponse";
+import type DiscModel from "../../models/Disc";
 import UserEnum from "../../models/UserEnum";
-import DiscModel from "../../models/Disc";
 import connectFourReducer, {
   ActionEnum,
 } from "../../reducers/connect-four.reducer";
@@ -10,8 +12,6 @@ import {
 } from "../../utils/connect-four/connect-four.utils";
 import Board from "../board";
 import styles from "./connect-four.module.scss";
-import ApiRequest from "../../models/ApiRequest";
-import ApiResponse from "../../models/ApiResponse";
 
 interface ComponentProps {
   maxColumnHeight?: number;
@@ -27,7 +27,7 @@ export default function ConnectFour({
     initColumns(numberOfColumns),
   );
   const [activeUser, setActiveUser] = useState(UserEnum.Player1);
-  const [winner, setWinner] = useState<UserEnum>(null);
+  const [winner, setWinner] = useState<UserEnum|null>(null);
   const [mode, setMode] = useState(1);
   const [difficulty, setDifficulty] = useState(2);
   const [connectFourClass, setConnectFourClass] = useState(styles.connectFour);
@@ -143,7 +143,7 @@ export default function ConnectFour({
     const playerOneWon = (winner as UserEnum) === UserEnum.Player1;
     if (isSinglePlayer) {
       gameOverText = playerOneWon
-        ? `✨ Congratulations! You won! ✨`
+        ? "✨ Congratulations! You won! ✨"
         : "The computer won. Better luck next time! 🖥";
     } else {
       gameOverText = playerOneWon
